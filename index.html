@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spline vs. Polyline – Interactive Canvas Demo</title>
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --panel: #12141a;
+      --ink: #e6e8ef;
+      --muted: #9aa3b2;
+      --accent: #6ee7ff;
+      --accent-2: #b6f09c;
+      --danger: #ff6b6b;
+      --shadow: 0 8px 24px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: radial-gradient(1200px 800px at 10% 0%, #0e1220 0%, #07080c 60%, #05060a 100%), var(--bg);
+      color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      display: grid; place-items: start center; padding: 24px;
+    }
+    .app {
+      width: min(1100px, 100%); display: grid; gap: 16px;
+      grid-template-columns: 1fr; grid-auto-rows: min-content;
+    }
+    header { display:flex; align-items: center; justify-content: space-between; gap: 16px; }
+    h1 { font-size: clamp(20px, 3vw, 28px); margin: 0; letter-spacing: .3px; }
+    .sub { color: var(--muted); font-size: 13px; }
+
+    .board { position: relative; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)); border: 1px solid rgba(255,255,255,.06); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    canvas { display:block; width: 100%; height: 520px; background: linear-gradient( to bottom right, rgba(110,231,255,.05), rgba(182,240,156,.05) ), radial-gradient(900px 600px at 80% 30%, rgba(110,231,255,.09), transparent 60% ); }
+
+    .panel { display:flex; flex-wrap: wrap; gap:12px; align-items: center; background: var(--panel); border: 1px solid rgba(255,255,255,.06); padding: 14px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .panel label { display:flex; align-items: center; gap:8px; color: var(--muted); }
+    .panel .group { display:flex; align-items:center; gap:10px; padding:6px 10px; background: rgba(255,255,255,.03); border-radius: 999px; border: 1px solid rgba(255,255,255,.06); }
+    input[type="range"] { width: 160px; }
+    input[type="number"] { width: 64px; }
+    .btn { cursor:pointer; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); color: var(--ink); padding: 8px 12px; border-radius: 12px; font-weight: 600; letter-spacing:.2px; transition: transform .05s ease, background .2s; }
+    .btn:hover { background: rgba(255,255,255,.08); }
+    .btn:active { transform: translateY(1px); }
+    .btn.danger { border-color: rgba(255,107,107,.5); color: #ffdede; }
+
+    .legend { display:flex; align-items:center; gap:14px; flex-wrap: wrap; }
+    .chip { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius: 999px; background: rgba(255,255,255,.05); border: 1px dashed rgba(255,255,255,.18); color: var(--muted); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+    .dot.poly { background: var(--accent-2); }
+    .dot.spline { background: var(--accent); }
+    .dot.knot { background: var(--danger); }
+
+    footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 4px; }
+    a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Spline vs. Polyline — Interactive</h1>
+        <div class="sub">Drag the red points (knots). Click on the canvas to add points. Toggle options to see how splines behave.</div>
+      </div>
+    </header>
+
+    <div class="board">
+      <canvas id="c"></canvas>
+    </div>
+
+    <div class="panel" role="group" aria-label="Controls">
+      <div class="legend">
+        <span class="chip"><span class="dot poly"></span>Polyline (straight segments)</span>
+        <span class="chip"><span class="dot spline"></span>Spline (Catmull–Rom)</span>
+        <span class="chip"><span class="dot knot"></span>Knots (draggable)</span>
+      </div>
+
+      <div class="group">
+        <label> Tension
+          <input id="tension" type="range" min="0" max="1" step="0.05" value="0.5" />
+          <input id="tensionNum" type="number" min="0" max="1" step="0.05" value="0.5" />
+        </label>
+      </div>
+
+      <label class="group"><input id="closed" type="checkbox" /> Closed</label>
+      <label class="group"><input id="showPoly" type="checkbox" checked /> Show polyline</label>
+      <label class="group"><input id="showPoints" type="checkbox" checked /> Show points</label>
+
+      <button id="reset" class="btn">Reset</button>
+      <button id="random" class="
